@@ -1,6 +1,7 @@
 基本操作篇：
 git跟踪并管理的是修改而不是文件
 HEAD指向的版本就是当前版本
+当你从远程仓库克隆时，实际上Git自动把本地的master分支和远程的master分支对应起来了，并且，远程仓库的默认名称是origin。
 /LearnGit文件夹即工作区 .git目录是版本库
 1 git diff:查看修改内容
 
@@ -21,7 +22,7 @@ commit备注
 10 git checkout 分支名：创建新分支
 11 git branch 分支名：切换分支
 12 git checkout -b 分支名：创建并切换到新分支
-13 git merge dev：合并dev分支到master
+13 git merge dev：合并dev分支到master（当前Head指向master）
 14 git branch -d 分支名：删除分支
 15 git log --graph：可以看到分支合并图
 16 git merge --no-ff -m "merge with no-ff" dev：禁用fast forward模式
@@ -30,6 +31,47 @@ commit备注
 首先，master分支应该是非常稳定的，也就是仅用来发布新版本，平时不能在上面干活；
 那在哪干活呢？干活都在dev分支上，也就是说，dev分支是不稳定的，到某个时候，比如1.0版本发布时，再把dev分支合并到master上，在master分支发布1.0版本；
 你和你的小伙伴们每个人都在dev分支上干活，每个人都有自己的分支，时不时地往dev分支上合并就可以了。
+###########################################################
+bug分支：在一个分支上工作时需要切换到其他分支处理bug，但不想提交工作分支
+17 git stash:将当前修改(未提交的代码)存入缓存区;暂存后的工作区代码会恢复到最后一次提交时的代码
+18 git stash list:
+19 git stash pop:
+20 git stash apply+git stash drop
+#############################################################
+feature分支：添加新功能时，新建feature分支，完成后在dev上合并并删除
+21 git branch -D 分支：强行删除还未合并的分支
+###########################################################
 解决冲突：
 当Git无法自动合并分支时，就必须首先解决冲突。解决冲突后，再提交，合并完成。
 解决冲突就是把Git合并失败的文件手动编辑为我们希望的内容，再提交。
+##########################################################
+多人合作：
+
+master分支是主分支，因此要时刻与远程同步；
+dev分支是开发分支，团队所有成员都需要在上面工作，所以也需要与远程同步；
+bug分支只用于在本地修复bug，就没必要推到远程了，除非老板要看看你每周到底修复了几个bug；
+feature分支是否推到远程，取决于你是否和你的小伙伴合作在上面开发。
+
+流程：
+首先，可以试图用git push origin <branch-name>推送自己的修改；
+如果推送失败，则因为远程分支比你的本地更新，需要先用git pull试图合并；
+如果合并有冲突，则解决冲突，并在本地提交；
+没有冲突或者解决掉冲突后，再用git push origin <branch-name>推送就能成功！
+
+如果git pull提示no tracking information，则说明本地分支和远程分支的链接关系没有创建，用命令git branch --set-upstream-to <branch-name> origin/<branch-name>。
+22 git remote:查看远程库信息
+23 git remote -v:查看远程库更详细的信息（显示推送和抓取的地址）
+24 git checkout -b 分支x origin/分支x ：创建并切换到新分支X，并建立与远程分支y的映射关系（分支名最好一致）
+25 git pull ：拉取远程分支的最新修改
+26 git push origin 分支：从本地推送分支
+
+查看远程库信息，使用git remote -v；
+本地新建的分支如果不推送到远程，对其他人就是不可见的；
+从本地推送分支，使用git push origin branch-name，如果推送失败，先用git pull抓取远程的新提交；
+在本地创建和远程分支对应的分支，使用git checkout -b branch-name origin/branch-name，本地和远程分支的名称最好一致；
+建立本地分支和远程分支的关联，使用git branch --set-upstream branch-name origin/branch-name；
+从远程抓取分支，使用git pull，如果有冲突，要先处理冲突。
+
+#################################################################
+标签管理
+便于管理咯，与commit id 不同，标签应该是炒鸡好记的版本号～
